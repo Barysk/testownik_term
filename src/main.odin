@@ -5,6 +5,7 @@ import "core:fmt"
 import "core:strings"
 import "core:math/rand"
 import "core:time"
+import ansi "core:terminal/ansi"
 
 // TODO
 // Planned flags:
@@ -69,117 +70,30 @@ main :: proc() {
         if !entry.is_dir && strings.has_suffix(entry.name, ".txt") {
             question := parse_question(entry)
             append(&questions, question)
-            // fmt.println("Parsed Question ID: ", question.id)
-            // fmt.println("Text: ", question.text)
-            // i := 1
-            // for answer in question.answers {
-            //     fmt.println(i, "-",  answer.is_correct, answer.text)
-            //     i += 1
-            // }
-            // fmt.println("--------")
         }
     }
 
     completed_questions := 0
     number_of_questions := len(questions)
     
+    clear_term()
     // Loop
     for completed_questions < number_of_questions {
         current_question := print_random_question(&questions)
         input: [128]byte
         line, _ := os.read(os.stdin, input[:])
         fmt.println(check_the_answer(&questions, &input, &current_question))
-    }
-
-}
-
-import "core:strconv"
-check_the_answer :: proc(
-    questions: ^[dynamic]Question,
-    input: ^[128]byte,
-    current_question: ^int
-) -> bool {
-
-    line := string(input[:])
-    line = strings.trim_space(line)
-    line, _ = strings.replace_all(line, " ", "")
-
-    parts := strings.split(line, ",")
-
-    selected: [dynamic]int
-    for part in parts {
-        if part == "" {
-            continue
-        }
-        val := strconv.atoi(part)
-        append(&selected, val)
-    }
-
-    correct: [dynamic]int
-    i := 1
-    for answer in questions[current_question^].answers {
-        if answer.is_correct {
-            append(&correct, i)
-        }
-        i += 1
-    }
-
-    sort_in_place(selected)
-    sort_in_place(correct)
-
-    fmt.println(selected)
-    fmt.println(correct)
-
-    if len(selected) != len(correct) {
-        return false
-    }
-
-    for i in 0..<len(selected) {
-        if selected[i] != correct[i] {
-            return false
-        }
-    }
-
-    return true
-
-    sort_in_place :: proc(arr: [dynamic]int) {
-        for i in 0..<len(arr) {
-            for j in i+1..<len(arr) {
-                if arr[j] < arr[i] {
-                    arr[i], arr[j] = arr[j], arr[i]
-                }
-            }
-        }
+        line, _ = os.read(os.stdin, input[:])
+        clear_term()
     }
 }
 
-print_random_question :: proc(questions: ^[dynamic]Question) -> int {
-    if len(questions^) == 0 {
-        fmt.println("No questions, congrats..")
-        return -1
-    }
-    
-    index_rand := rand.int_max(len(questions^) - 1)
-
-    print_question(questions, index_rand)
-
-    return index_rand
+clear_term :: proc() {
+        fmt.print("\x1b[2J\x1b[H")
 }
+correct_answer :: proc() {}
+uncorrect_answer :: proc() {}
 
-print_question :: proc(questions: ^[dynamic]Question, index: int){
-    fmt.printfln("[ %s ]\n", questions[index].id)
-    fmt.printfln("%s\n", questions[index].text)
-    i := 1
-    for answer in questions[index].answers {
-        // fmt.println(i, "-", answer.text)
-        if answer.is_correct && DEBUG {
-            fmt.printfln("  + %i. %s", i, answer.text)
-        } else {
-            fmt.printfln("    %i. %s", i, answer.text)
-        }
-        i += 1
-    }
-}
 
 
 
