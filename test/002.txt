@@ -1,0 +1,6 @@
+X0001
+Która z poniższych metod jest popularnym szyfrem z kluczem publicznym?
+RC4
+IDEA
+DES
+ElGamal

@@ -1,0 +1,6 @@
+X0001
+Z którą opcją formatowania należy szczególnie uważać w funkcji printf() ze względu na problemy bezpieczeństwa?
+%d
+%n
+%x
+%s

@@ -1,3 +1,3 @@
 #! /bin/bash
 
-odin run src/
+odin run src/ -- test/

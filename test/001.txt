@@ -1,0 +1,6 @@
+X0100
+Która z poniższych deklaracji jest najbardziej niebezpieczna?
+PATH=/usr/bin:/bin:
+PATH=:/usr/bin:/bin
+PATH=/usr/bin:/bin
+PATH=/var/tmp:/bin
