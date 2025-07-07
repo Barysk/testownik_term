@@ -3,7 +3,8 @@ package tesuteru
 import "core:os"
 import "core:fmt"
 import "core:strings"
-import "core:math"
+import "core:math/rand"
+import "core:time"
 
 // TODO
 // Planned flags:
@@ -32,74 +33,9 @@ import "core:math"
 // -S <path/to/save_file.txt> to load your save
 // savings are laying down in the directory with testownik questions : saves must by dynamic, updated after every save
 
-RandomType :: struct {
-    is_done: bool
-}
-
-HeuristicType :: struct {
-    is_chosen: bool,
-    is_done: bool
-}
-
-Type :: union {
-    RandomType,
-    HeuristicType
-}
-
-Answer :: struct {
-    is_correct: bool,
-    text: string,
-}
-
-Question :: struct {
-    id: string,
-    text: string,
-    answers: [dynamic]Answer,
-    type: Type,
-    count: u32,
-}
-
-parse_question :: proc(entry: os.File_Info) -> Question {
-    data, _ := os.read_entire_file(entry.fullpath)
-    // handle error later
-
-    lines := strings.split_lines(string(data))
-    if len(lines) < 2 {
-        fmt.println("Invalid file format ", entry.name)
-    }
-
-    header := lines[0]
-    if len(header) < 2 || header[0] != 'X' {
-        fmt.println("Invalid header: ", header[0])
-    }
-
-    answer_count := len(header) - 1
-    answer_flags := header[1:]
-
-    question := Question {
-        id = entry.name,
-        text = lines[1],
-        type = RandomType{
-            is_done = false
-        },
-        count = 2
-    }
-
-    for i in 0..<answer_count {
-        if i+2 >= len(lines){
-            break
-        }
-
-        answer := Answer{
-            is_correct = (answer_flags[i] == '1'),
-            text = lines[i + 2]
-        }
-
-        append(&question.answers, answer)
-    }
-
-    return question
-}
+ADDITIONAL_ANSWERS :: 1
+INITIAL_ANSWERS :: 2
+MAX_ANSWERS :: 3
 
 main :: proc() {
     args := os.args
@@ -109,75 +45,67 @@ main :: proc() {
         return
     }
 
-    fmt.println("args")
-    fmt.println(args, "\n")
+    seed := time.time_to_unix(time.now())
+    rand.reset(u64(seed))
 
     dir_path := args[1]
-    dir_handle, _ := os.open(dir_path)
-    // error handle
+    dir_handle, err := os.open(dir_path)
+    if err != nil {
+        fmt.println("Failure during attempt to open directory", dir_path)
+        fmt.println(err)
+        return
+    }
+    
     defer os.close(dir_handle)
     
     entries, _ := os.read_dir(dir_handle, -1)
     // error handle
 
+    questions: [dynamic]Question
+
     for entry in entries {
         if !entry.is_dir && strings.has_suffix(entry.name, ".txt") {
             question := parse_question(entry)
-            fmt.println("Parsed Question ID: ", question.id)
-            fmt.println("Text: ", question.text)
-            i := 1
-            for answer in question.answers {
-                fmt.println(i, "-",  answer.is_correct, answer.text)
-                i += 1
-            }
-            fmt.println("--------")
+            append(&questions, question)
+            // fmt.println("Parsed Question ID: ", question.id)
+            // fmt.println("Text: ", question.text)
+            // i := 1
+            // for answer in question.answers {
+            //     fmt.println(i, "-",  answer.is_correct, answer.text)
+            //     i += 1
+            // }
+            // fmt.println("--------")
         }
     }
+
+    completed_questions := 0
+    
+    // start loop here
+
+    print_random_question(&questions)
 }
 
+print_random_question :: proc(questions: ^[dynamic]Question){
+    if len(questions^) == 0 {
+        fmt.println("No questions, congrats..")
+        return
+    }
+    
+    index_rand := rand.int_max(len(questions^) - 1)
 
+    print_question(questions, index_rand)
+}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+print_question :: proc(questions: ^[dynamic]Question, index: int){
+    fmt.printfln("[ %s ]\n", questions[index].id)
+    fmt.printfln("%s\n", questions[index].text)
+    i := 1
+    for answer in questions[index].answers {
+        // fmt.println(i, "-", answer.text)
+        fmt.printfln("    %i. %s", i, answer.text)
+        i += 1
+    }
+}
 
 
 
