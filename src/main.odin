@@ -11,6 +11,7 @@ import "core:time"
 // -e <num> additional answers if wrong default 1
 // -i <num> initial answer count default 2
 // -m <num> max answer count default 3
+// -c activates cheat mode - you see the correct answers, good initial learning
 //
 // Input
 // multiple answers are going using , valid answers = { 
@@ -27,7 +28,7 @@ import "core:time"
 // show number of questions that are going appear. 'Do opanowania' [num]
 // show [time passed]
 //
-// Additional
+// If I will
 // -h <num> use heuristic instead of fully random, good for initial learning num means number of questions in the initial pool
 // -s enable save function, saves state after every question
 // -S <path/to/save_file.txt> to load your save
@@ -72,11 +73,6 @@ main :: proc() {
         }
     }
 
-    completed_questions := 0
-    number_of_questions := len(questions)
-    correct_answers:= 0
-    incorrect_answers:= 0
-
     testing_data := TestingData {
         completed_questions = 0,
         number_of_questions = u32(len(questions)),
@@ -86,7 +82,7 @@ main :: proc() {
     
     clear_term()
     // Loop
-    for completed_questions < number_of_questions {
+    for testing_data.completed_questions < testing_data.number_of_questions {
         show_answers := CHEATMODE
 
         // update
@@ -96,6 +92,7 @@ main :: proc() {
         print_data(
             &dir_path,
             &questions[current_question].id,
+            &questions[current_question].count,
             &testing_data,
         )
         print_question(&questions, &current_question, &show_answers)
@@ -110,42 +107,63 @@ main :: proc() {
         print_data(
             &dir_path,
             &questions[current_question].id,
+            &questions[current_question].count,
             &testing_data,
         )
         print_question(&questions, &current_question, &show_answers)
+
         switch check_the_answer(&questions, &input, &current_question) {
-            case true: correct_answer(&questions)
-            case false: incorrect_answer(&questions)
+            case true:
+                correct_answer( &questions, &current_question, &testing_data)
+            case false:
+                incorrect_answer(&questions, &current_question, &testing_data)
         }
 
         // wait on input input
         line, _ = os.read(os.stdin, input[:])
         clear_term()
     }
+    fmt.println("Congratulation, now go drink")
 }
 
-print_data :: proc(
-    dir_path: ^string,
-    filename: ^string,
+correct_answer :: proc(
+    questions: ^[dynamic]Question,
+    current_question: ^int,
     testing_data: ^TestingData
 ) {
-    ratio := f32(100)
-    if testing_data^.incorrect_answers != 0 {
-        ratio = f32(testing_data^.correct_answers) / f32(testing_data^.incorrect_answers) * 100
+    fmt.println("Correct\n")
+
+    questions[current_question^].count -= 1
+
+    if questions[current_question^].count <= 0 {
+        questions[current_question^].type = RandomType { is_done = true }
     }
-    fmt.printfln("| Loaded directory: %s", dir_path^)
-    fmt.printfln("| Current file: %s", filename^)
-    fmt.printfln("| Qiestions: %d", testing_data^.number_of_questions)
-    fmt.printfln("| Completed questions: %d\n", testing_data^.completed_questions)
-    fmt.printfln("| Ratio: %.2f%%", ratio)
+
+    testing_data^.correct_answers += 1
+
+    i := 0
+
+    for question in questions^ {
+        if question.type.(RandomType).is_done == true {
+            // fmt.println(question.type)
+            ordered_remove(questions, i)
+            testing_data.completed_questions += 1
+        }
+        i += 1
+    }
 }
 
-correct_answer :: proc(questions: ^[dynamic]Question) {
+incorrect_answer :: proc(
+    questions: ^[dynamic]Question,
+    current_question: ^int,
+    testing_data: ^TestingData
+) {
+    fmt.println("Wrong\n")
 
-}
-
-incorrect_answer :: proc(questions: ^[dynamic]Question) {
-
+    testing_data^.incorrect_answers += 1
+    if questions[current_question^].count < MAX_ANSWERS {
+        questions[current_question^].count += ADDITIONAL_ANSWERS
+    }
 }
 
 

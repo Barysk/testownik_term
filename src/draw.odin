@@ -34,6 +34,27 @@ print_question :: proc(
     }
 }
 
+print_data :: proc(
+    dir_path: ^string,
+    filename: ^string,
+    question_count: ^u32,
+    testing_data: ^TestingData
+) {
+    ratio := f32(100)
+    if testing_data^.correct_answers + testing_data^.incorrect_answers != 0 {
+        ratio =
+        f32(testing_data^.correct_answers) /
+        f32(testing_data^.correct_answers + testing_data^.incorrect_answers) *
+        100
+    }
+    fmt.printfln("| Loaded directory: %s", dir_path^)
+    fmt.printfln("| Current file: %s", filename^)
+    fmt.printfln("| Qiestions: %d", testing_data^.number_of_questions)
+    fmt.printfln("| Completed questions: %d", testing_data^.completed_questions)
+    fmt.printfln("| Repeats: %d", question_count^)
+    fmt.printfln("| Ratio: %.2f%%\n", ratio)
+}
+
 clear_term :: proc() {
     fmt.print("\x1b[2J\x1b[H")
     // fmt.println(ansi.CSI + ansi.FG_CYAN + ansi.SGR + "Hellope!" + ansi.CSI + ansi.RESET + ansi.SGR)

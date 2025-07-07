@@ -32,7 +32,7 @@ parse_question :: proc(entry: os.File_Info) -> Question {
         type = RandomType{
             is_done = false
         },
-        count = 2
+        count = INITIAL_ANSWERS
     }
 
     for i in 0..<answer_count {
