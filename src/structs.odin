@@ -1,5 +1,12 @@
 package tesuteru
 
+TestingData :: struct {
+    completed_questions: u32,
+    number_of_questions: u32,
+    correct_answers: u32,
+    incorrect_answers: u32,
+}
+
 RandomType :: struct {
     is_done: bool
 }

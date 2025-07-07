@@ -5,7 +5,6 @@ import "core:fmt"
 import "core:strings"
 import "core:math/rand"
 import "core:time"
-import ansi "core:terminal/ansi"
 
 // TODO
 // Planned flags:
@@ -34,7 +33,7 @@ import ansi "core:terminal/ansi"
 // -S <path/to/save_file.txt> to load your save
 // savings are laying down in the directory with testownik questions : saves must by dynamic, updated after every save
 
-DEBUG :: true
+CHEATMODE :: false
 
 ADDITIONAL_ANSWERS :: 1
 INITIAL_ANSWERS :: 2
@@ -75,24 +74,79 @@ main :: proc() {
 
     completed_questions := 0
     number_of_questions := len(questions)
+    correct_answers:= 0
+    incorrect_answers:= 0
+
+    testing_data := TestingData {
+        completed_questions = 0,
+        number_of_questions = u32(len(questions)),
+        correct_answers = 0,
+        incorrect_answers = 0,
+    }
     
     clear_term()
     // Loop
     for completed_questions < number_of_questions {
-        current_question := print_random_question(&questions)
+        show_answers := CHEATMODE
+
+        // update
+        current_question := choose_random_question(&questions)
+        
+        // draw
+        print_data(
+            &dir_path,
+            &questions[current_question].id,
+            &testing_data,
+        )
+        print_question(&questions, &current_question, &show_answers)
+
+        // handle input
         input: [128]byte
         line, _ := os.read(os.stdin, input[:])
-        fmt.println(check_the_answer(&questions, &input, &current_question))
+        
+        // draw correct answers
+        show_answers = true
+        clear_term()
+        print_data(
+            &dir_path,
+            &questions[current_question].id,
+            &testing_data,
+        )
+        print_question(&questions, &current_question, &show_answers)
+        switch check_the_answer(&questions, &input, &current_question) {
+            case true: correct_answer(&questions)
+            case false: incorrect_answer(&questions)
+        }
+
+        // wait on input input
         line, _ = os.read(os.stdin, input[:])
         clear_term()
     }
 }
 
-clear_term :: proc() {
-        fmt.print("\x1b[2J\x1b[H")
+print_data :: proc(
+    dir_path: ^string,
+    filename: ^string,
+    testing_data: ^TestingData
+) {
+    ratio := f32(100)
+    if testing_data^.incorrect_answers != 0 {
+        ratio = f32(testing_data^.correct_answers) / f32(testing_data^.incorrect_answers) * 100
+    }
+    fmt.printfln("| Loaded directory: %s", dir_path^)
+    fmt.printfln("| Current file: %s", filename^)
+    fmt.printfln("| Qiestions: %d", testing_data^.number_of_questions)
+    fmt.printfln("| Completed questions: %d\n", testing_data^.completed_questions)
+    fmt.printfln("| Ratio: %.2f%%", ratio)
 }
-correct_answer :: proc() {}
-uncorrect_answer :: proc() {}
+
+correct_answer :: proc(questions: ^[dynamic]Question) {
+
+}
+
+incorrect_answer :: proc(questions: ^[dynamic]Question) {
+
+}
 
 
 

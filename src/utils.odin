@@ -4,7 +4,6 @@ import "core:os"
 import "core:fmt"
 import "core:strings"
 import "core:strconv"
-import "core:math/rand"
 
 parse_question :: proc(entry: os.File_Info) -> Question {
     data, ok := os.read_entire_file(entry.fullpath)
@@ -108,30 +107,3 @@ check_the_answer :: proc(
     }
 }
 
-print_random_question :: proc(questions: ^[dynamic]Question) -> int {
-    if len(questions^) == 0 {
-        fmt.println("No questions, congrats..")
-        return -1
-    }
-    
-    index_rand := rand.int_max(len(questions^))
-
-    print_question(questions, index_rand)
-
-    return index_rand
-}
-
-print_question :: proc(questions: ^[dynamic]Question, index: int){
-    fmt.printfln("[ %s ]\n", questions[index].id)
-    fmt.printfln("%s\n", questions[index].text)
-    i := 1
-    for answer in questions[index].answers {
-        // fmt.println(i, "-", answer.text)
-        if answer.is_correct && DEBUG {
-            fmt.printfln("  + %i. %s\n", i, answer.text)
-        } else {
-            fmt.printfln("    %i. %s\n", i, answer.text)
-        }
-        i += 1
-    }
-}
