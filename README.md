@@ -1,6 +1,6 @@
-# Testownik
+# テステル
 
-Testownik is an app for solving tests created by PWr students. This is a terminal version made to be as light as possible – no unneeded interface or, god forbid, .js
+テステル is a testownik app for solving tests created by PWr students. This is a terminal version made to be as light as possible – no unneeded interface or, god forbid, .js
 
 ## Installation
 
