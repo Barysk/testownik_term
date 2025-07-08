@@ -97,22 +97,24 @@ handle_flags :: proc(args: ^[]string, config: ^Config) -> Error {
     return .Ok
 }
 
-parse_question :: proc(entry: os.File_Info, config: ^Config) -> Question {
+parse_question :: proc(entry: os.File_Info, config: ^Config) -> (Question, Error) {
     data, ok := os.read_entire_file(entry.fullpath)
 
     if !ok {
         fmt.println("Failure during attempt to read file", entry.fullpath)
-        return Question{}
+        return Question{}, .Err
     }
 
     lines := strings.split_lines(string(data))
     if len(lines) < 2 {
         fmt.println("Invalid file format ", entry.name)
+        return Question{}, .Err
     }
 
     header := lines[0]
     if len(header) < 2 || header[0] != 'X' {
         fmt.println("Invalid header: ", header[0])
+        return Question{}, .Err
     }
 
     answer_count := len(header) - 1
@@ -140,7 +142,7 @@ parse_question :: proc(entry: os.File_Info, config: ^Config) -> Question {
         append(&question.answers, answer)
     }
 
-    return question
+    return question, .Ok
 }
 
 check_the_answer :: proc(

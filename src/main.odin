@@ -100,9 +100,18 @@ main :: proc() {
 
     for entry in entries {
         if !entry.is_dir && strings.has_suffix(entry.name, ".txt") {
-            question := parse_question(entry, &config)
+            question, err := parse_question(entry, &config)
+            if err == .Err {
+                fmt.printfln("File %s probably has incorrect format", entry.name)
+                return
+            }
             append(&questions, question)
         }
+    }
+
+    if len(questions) == 0 {
+        fmt.println("No proper questions found in directory ", dir_path)
+        return
     }
 
     testing_data := TestingData {
