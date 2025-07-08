@@ -34,3 +34,15 @@ Question :: struct {
     count: u32,
 }
 
+Config :: struct {
+    cheatmode: bool,
+    ansimode: bool,
+    additional_answers: u32,
+    initial_answers: u32,
+    max_answers: u32,
+}
+
+Error :: enum {
+    Ok,
+    Err
+}

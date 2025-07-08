@@ -6,7 +6,98 @@ import "core:strings"
 import "core:strconv"
 import "core:sort"
 
-parse_question :: proc(entry: os.File_Info) -> Question {
+is_number :: proc(s: string) -> bool {
+    for c in s {
+        if c < '0' || c > '9' {
+            return false
+        }
+    }
+    return len(s) > 0
+}
+
+help_needed :: proc(args: ^[]string) -> bool {
+    i := 0
+    for i < len(args) {
+        arg := args[i]
+
+        if arg == "-h" || arg == "--help" {
+            return true
+        }
+
+        i += 1
+    }
+    return false
+}
+
+handle_flags :: proc(args: ^[]string, config: ^Config) -> Error {
+    i := 1
+    for i < len(args){
+        arg := args[i]
+
+        if arg == "-c" {
+            config.cheatmode = true
+        } else if arg == "-d" {
+            config.ansimode = false
+        } else if arg == "-a" && i + 1 < len(args) {
+            if is_number(args[i+1]){
+                val := strconv.atoi(args[i+1])
+                if val > 1024 {
+                    fmt.println("Too big number, you'll die doing this test")
+                    return .Err
+                }
+                config.additional_answers = u32(val)
+                i += 1
+            } else {
+                fmt.println("Invalid number for -a")
+                return .Err
+            }
+        } else if arg == "-i" && i + 1 < len(args) {
+            if is_number(args[i+1]){
+                val := strconv.atoi(args[i+1])
+                if val > 1024 {
+                    fmt.println("Too big number, you'll die doing this test")
+                    return .Err
+                }
+                if val == 0 {
+                    fmt.println("Initial value can't be zero")
+                    return .Err
+                }
+                config.initial_answers = u32(val)
+                i += 1
+            } else {
+                fmt.println("Invalid number for -i")
+                return .Err
+            }
+        } else if arg == "-m" && i + 1 < len(args) {
+            if is_number(args[i+1]){
+                val := strconv.atoi(args[i+1])
+                if val > 1024 {
+                    fmt.println("Too big number, you'll die doing this test")
+                    return .Err
+                }
+                config.max_answers = u32(val)
+                i += 1
+            } else {
+                fmt.println("Invalid number for -m")
+                return .Err
+            }
+        } else {
+            fmt.println("Those args aren't good, please refer to manual")
+            return .Err
+        }
+
+        i += 1
+    }
+
+    if config.max_answers < config.initial_answers {
+        fmt.println("initial value can't be bigger than max value")
+        return .Err
+    }
+
+    return .Ok
+}
+
+parse_question :: proc(entry: os.File_Info, config: ^Config) -> Question {
     data, ok := os.read_entire_file(entry.fullpath)
 
     if !ok {
@@ -33,7 +124,7 @@ parse_question :: proc(entry: os.File_Info) -> Question {
         type = RandomType{
             is_done = false
         },
-        count = INITIAL_ANSWERS
+        count = config.initial_answers
     }
 
     for i in 0..<answer_count {
