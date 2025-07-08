@@ -125,31 +125,31 @@ print_stat :: proc(
         f32(all_answers) *
         100
     }
-    fmt.printfln("| Loaded directory: %s", dir_path^)
-    fmt.printfln("| Qiestions: %d", testing_data^.number_of_questions)
+    fmt.printfln("┌ Loaded directory: %s", dir_path^)
+    fmt.printfln("│ Qiestions: %d", testing_data^.number_of_questions)
     if config.ansimode {
-        fmt.printfln("| Took you: " + ANSI_I + "%s" +
+        fmt.printfln("│ Took you: " + ANSI_I + "%s" +
             ANSI_RST, formated_time(elapsed))
     } else {
-        fmt.printfln("| Took you: %s", formated_time(elapsed))
+        fmt.printfln("│ Took you: %s", formated_time(elapsed))
     }
     // print_time(elapsed)
     // fmt.printfln("| Completed questions: %d", testing_data^.completed_questions)
-    fmt.printfln("| Total answers: %d", all_answers)
+    fmt.printfln("│ Total answers: %d", all_answers)
     switch config.ansimode {
         case true:
             if ratio >= 75 {
-                fmt.printfln("| " + ANSI_S + "Accurancy: %.2f%%" +
+                fmt.printfln("└ " + ANSI_S + "Accurancy: %.2f%%" +
                     ANSI_RST +"\n", ratio)
             } else if ratio >= 50 {
-                fmt.printfln("| " + ANSI_W + "Accurancy: %.2f%%" + 
+                fmt.printfln("└ " + ANSI_W + "Accurancy: %.2f%%" + 
                     ANSI_RST +"\n", ratio)
             } else if ratio < 50 {
-                fmt.printfln("| " + ANSI_C + "Accurancy: %.2f%%" + 
+                fmt.printfln("└ " + ANSI_C + "Accurancy: %.2f%%" + 
                     ANSI_RST +"\n", ratio)
             }
         case false: 
-                fmt.printfln("| Accurancy: %.2f%%\n", ratio)
+                fmt.printfln("└ Accurancy: %.2f%%\n", ratio)
     }
 }
 
@@ -259,10 +259,10 @@ print_congrats :: proc(config: ^Config, testing_data: ^TestingData) {
 formated_time :: proc(elapsed: ^time.Duration) -> string{
     total_milliseconds := int(time.duration_milliseconds(elapsed^))
 
-    hours := int(total_milliseconds / 3_600_00)
-    minutes := int(total_milliseconds / 60_000) - hours * 60
-    seconds := int(total_milliseconds / 1_000) - hours * 3_600_000 - minutes * 60
-    milliseconds := int(total_milliseconds) - hours * 3_600_000 - minutes * 60_000 - seconds * 1_000
+    hours := total_milliseconds / 3_600_000
+    minutes := (total_milliseconds % 3_600_000) / 60_000
+    seconds := (total_milliseconds % 60_000) / 1_000
+    milliseconds := total_milliseconds % 1_000
 
     buffer: [dynamic]u8
     builder:= strings.Builder{

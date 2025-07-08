@@ -1,6 +1,5 @@
-X0001
-Która z poniższych metod jest popularnym szyfrem z kluczem publicznym?
-RC4
-IDEA
-DES
-ElGamal
+X0100
+Will this work if we will give less answers than defined at start?
+No
+Yes, but one question will be empty
+Yes, but behaviour will be undefined
