@@ -1,0 +1,7 @@
+X1010
+What about multichoice?
+It is supported
+To answer choose multiple answers you need to provide sequence of correct answers ex: 134
+To answer choose multiple answers you need to provide sequence of correct answers separated by , ex: 1,3,4
+I does not supported
+

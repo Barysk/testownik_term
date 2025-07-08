@@ -274,7 +274,7 @@ formated_time :: proc(elapsed: ^time.Duration) -> string{
     if hours == 0 {
         result = fmt.sbprintf(&builder, "%02d:%02d.%03d", minutes, seconds, milliseconds)
     } else {
-        result = fmt.sbprintfln(
+        result = fmt.sbprintf(
             &builder,
             "%02d:%02d:%02d.%03d",
             hours,
