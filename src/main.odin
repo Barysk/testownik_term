@@ -12,6 +12,7 @@ import "core:time"
 // -i <num> initial answer count default 2
 // -m <num> max answer count default 3
 // -c activates cheat mode - you see the correct answers, good initial learning
+// -d deactivate ansi sequences (not recomended, use if your term doesn't support them for any reason. But consider updating your term, it not 1975 anymore bruh)
 //
 // Input
 // multiple answers are going using , valid answers = { 
@@ -29,7 +30,7 @@ import "core:time"
 // show [time passed]
 //
 // If I will
-// -h <num> use heuristic instead of fully random, good for initial learning num means number of questions in the initial pool
+// -a <num> use an alternative instead of fully random approach, good for initial learning num means number of questions in the initial pool
 // -s enable save function, saves state after every question
 // -S <path/to/save_file.txt> to load your save
 // savings are laying down in the directory with testownik questions : saves must by dynamic, updated after every save
@@ -58,9 +59,9 @@ main :: proc() {
         fmt.println(err)
         return
     }
-    
+
     defer os.close(dir_handle)
-    
+
     entries, _ := os.read_dir(dir_handle, -1)
     // error handle
 
@@ -79,15 +80,16 @@ main :: proc() {
         correct_answers = 0,
         incorrect_answers = 0,
     }
-    
+
+    start := time.now()
     clear_term()
-    // Loop
+
     for testing_data.completed_questions < testing_data.number_of_questions {
         show_answers := CHEATMODE
 
         // update
         current_question := choose_random_question(&questions)
-        
+
         // draw
         print_data(
             &dir_path,
@@ -100,7 +102,7 @@ main :: proc() {
         // handle input
         input: [128]byte
         line, _ := os.read(os.stdin, input[:])
-        
+
         // draw correct answers
         show_answers = true
         clear_term()
@@ -113,17 +115,19 @@ main :: proc() {
         print_question(&questions, &current_question, &show_answers)
 
         switch check_the_answer(&questions, &input, &current_question) {
-            case true:
-                correct_answer( &questions, &current_question, &testing_data)
-            case false:
-                incorrect_answer(&questions, &current_question, &testing_data)
+        case true:
+            correct_answer( &questions, &current_question, &testing_data)
+        case false:
+            incorrect_answer(&questions, &current_question, &testing_data)
         }
 
         // wait on input input
         line, _ = os.read(os.stdin, input[:])
         clear_term()
     }
-    fmt.println("Congratulation, now go drink")
+    elapsed := time.since(start)
+    print_stat(&dir_path, &testing_data, &elapsed)
+    print_congrats()
 }
 
 correct_answer :: proc(
@@ -131,7 +135,11 @@ correct_answer :: proc(
     current_question: ^int,
     testing_data: ^TestingData
 ) {
-    fmt.println("Correct\n")
+    if ANSI {
+        fmt.println(ANSI_S + "Correct\n" + ANSI_RST)
+    } else {
+        fmt.println("Correct\n")
+    }
 
     questions[current_question^].count -= 1
 
@@ -158,7 +166,11 @@ incorrect_answer :: proc(
     current_question: ^int,
     testing_data: ^TestingData
 ) {
-    fmt.println("Wrong\n")
+    if ANSI {
+        fmt.println(ANSI_C + "Wrong\n" + ANSI_RST)
+    } else {
+        fmt.println("Wrong\n")
+    }
 
     testing_data^.incorrect_answers += 1
     if questions[current_question^].count < MAX_ANSWERS {

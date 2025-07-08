@@ -4,6 +4,7 @@ import "core:os"
 import "core:fmt"
 import "core:strings"
 import "core:strconv"
+import "core:sort"
 
 parse_question :: proc(entry: os.File_Info) -> Question {
     data, ok := os.read_entire_file(entry.fullpath)
@@ -81,8 +82,8 @@ check_the_answer :: proc(
         i += 1
     }
 
-    sort_in_place(selected)
-    sort_in_place(correct)
+    sort.quick_sort(selected[:])
+    sort.quick_sort(correct[:])
 
     if len(selected) != len(correct) {
         return false
@@ -95,15 +96,5 @@ check_the_answer :: proc(
     }
 
     return true
-
-    sort_in_place :: proc(arr: [dynamic]int) {
-        for i in 0..<len(arr) {
-            for j in i+1..<len(arr) {
-                if arr[j] < arr[i] {
-                    arr[i], arr[j] = arr[j], arr[i]
-                }
-            }
-        }
-    }
 }
 
