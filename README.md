@@ -2,6 +2,8 @@
 
 テステル is a testownik app for solving tests created by PWr students. This is a terminal version made to be as light as possible – no unneeded interface or, god forbid, .js
 
+Tesuteru comes from test terminal, if someone was wondering.
+
 ## Installation
 
 No need, just start a binary and provide path, there will be no questions about making it your default ;)
