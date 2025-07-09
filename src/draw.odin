@@ -17,9 +17,10 @@ print_help :: proc() {
     "┌─ HELP ───────────────────────────────────────────────────────┐\n" +
     "│ Usage: tesuteru <path/to/folder> <flags>                     │\n" +
     "│ Flags:                                                       │\n" +
-    "│ -a - addintional repeats if you failed to answer correctly   │\n" +
-    "│ -i - initial repeats for each question                       │\n" +
-    "│ -m - max repeats for each question                           │\n" +
+    "│ -a <num> - addintional repeats if you failed to answer       │\n" +
+    "│  correctly, default: 1                                       │\n" +
+    "│ -i <num> - initial repeats for each question, default: 2     │\n" +
+    "│ -m <num> - max repeats for each question, default: 3         │\n" +
     "│ -c - activate cheat mode                                     │\n" +
     "│ -d - disable ansi codes (not recomended, use if your term    │\n" +
     "│  doesn't support them for any reason. But consider upgrading │\n" +

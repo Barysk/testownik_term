@@ -7,48 +7,6 @@ import "core:strconv"
 import "core:math/rand"
 import "core:time"
 
-// TODO
-// Planned flags:
-// -a <num> additional answers if wrong default 1
-// -i <num> initial answer count default 2
-// -m <num> max answer count default 3
-// -c activates cheat mode - you see the correct answers, good initial learning
-// -d deactivate ansi sequences (not recomended, use if your term doesn't support them for any reason. But consider updating your term, it not 1975 anymore bruh)
-//
-// Input
-// multiple answers are going using , valid answers = { 
-// 1,2,3 1, 2, 3
-// 1,2 ,3,
-// 2
-// 3,
-// }
-//
-// Misc:
-// show question file names
-// show stat [Wrong answers / Correct answers]
-// show number of questions that are no longer appear. 'Opanowane' [num]
-// show number of questions that are going appear. 'Do opanowania' [num]
-// show [time passed]
-//
-// If I will
-// -a <num> use an alternative instead of fully random approach, good for initial learning num means number of questions in the initial pool, union for this alredy created
-// -s enable save function, saves state after every question
-// -S <path/to/save_file.txt> to load your save
-// savings are laying down in the directory with testownik questions : saves must by dynamic, updated after every save
-
-// Globals are good and all, but I love procedure programming
-// CHEATMODE := false
-// ANSI := true
-// ADDITIONAL_ANSWERS : u32 = 1
-// INITIAL_ANSWERS : u32 = 2
-// MAX_ANSWERS : u32 = 3
-
-// -e <num> additional answers if wrong default 1
-// -i <num> initial answer count default 2
-// -m <num> max answer count default 3
-// -c activates cheat mode - you see the correct answers, good initial learning
-// -d deactivate ansi sequences 
-
 main :: proc() {
     args := os.args[1:]
 
@@ -100,8 +58,8 @@ main :: proc() {
 
     for entry in entries {
         if !entry.is_dir && strings.has_suffix(entry.name, ".txt") {
-            question, err := parse_question(entry, &config)
-            if err == .Err {
+            question, ok := parse_question(entry, &config)
+            if ok != .Ok {
                 fmt.printfln("File %s probably has incorrect format", entry.name)
                 return
             }
@@ -227,6 +185,8 @@ incorrect_answer :: proc(
 }
 
 
-
-
-
+// TODO Possible future development
+// -h <num> use an alternative instead of fully random approach, good for initial learning num means number of questions in the initial pool, union for this alredy created
+// -s enable save function, saves state after every question
+// -S <path/to/save_file.txt> to load your save
+// savings are laying down in the directory with testownik questions : saves must by dynamic, updated after every save

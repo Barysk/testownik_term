@@ -16,9 +16,9 @@ Or if you want and you on linux system just move the binary to /usr/local/bin/
 
 ### flags
 ```
--a - addintional repeats if you failed to answer correctly
--i - initial repeats for each question
--m - max repeats for each question
+-a <num> - addintional repeats if you failed to answer correctly, default: 1
+-i <num> - initial repeats for each question, default: 2
+-m <num> - max repeats for each question, default: 3
 -c - activate cheat mode
 -d - disable ansi codes (not recomended, use if your term doesn't support them for any reason. But consider upgrading your term, it not 1975 anymore bruh). Hope your term supprorts UTF-8 at least.
 ```
