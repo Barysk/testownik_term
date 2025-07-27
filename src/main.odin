@@ -125,6 +125,7 @@ main :: proc() {
         line, _ = os.read(os.stdin, input[:])
         clear_term(&config)
     }
+    delete(questions)
     elapsed := time.since(start)
     print_stat(&dir_path, &testing_data, &elapsed, &config)
     print_congrats(&config, &testing_data)

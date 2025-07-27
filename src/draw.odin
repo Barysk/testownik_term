@@ -5,6 +5,8 @@ import "core:math/rand"
 import "core:terminal/ansi"
 import "core:strings"
 import "core:time"
+import "core:c/libc"
+import "core:os"
 
 ANSI_I :: ansi.CSI + ansi.FG_CYAN + ansi.SGR    // info
 ANSI_S :: ansi.CSI + ansi.FG_GREEN + ansi.SGR   // super
@@ -14,21 +16,21 @@ ANSI_RST :: ansi.CSI + ansi.RESET + ansi.SGR    // reset
 
 print_help :: proc() {
     fmt.println("\n\n" + 
-    "┌─ HELP ───────────────────────────────────────────────────────┐\n" +
-    "│ Usage: tesuteru <path/to/folder> <flags>                     │\n" +
-    "│ Flags:                                                       │\n" +
-    "│ -a <num> - addintional repeats if you failed to answer       │\n" +
-    "│  correctly, default: 1                                       │\n" +
-    "│ -i <num> - initial repeats for each question, default: 2     │\n" +
-    "│ -m <num> - max repeats for each question, default: 3         │\n" +
-    "│ -c - activate cheat mode                                     │\n" +
-    "│ -d - disable ansi codes (not recomended, use if your term    │\n" +
-    "│  doesn't support them for any reason. But consider upgrading │\n" +
-    "│  your term, it not 1975 anymore bruh). Hope your term        │\n" +
-    "│  supprorts UTF-8 at least.                                   │\n" +
-    "├──────────┬──────────┬────────────────────────────────────────┤\n" +
-    "│ テステル │ ver1.0.0 │ bk                                     │\n" +
-    "└──────────┴──────────┴────────────────────────────────────────┘\n" +
+    " _Tesuteru_HELP________________________________________________ \n" +
+    "                                                                \n" +
+    "  Usage: tesuteru <path/to/folder> <flags>                      \n" +
+    "  Flags:                                                        \n" +
+    "  -a <num> - addintional repeats if you failed to answer        \n" +
+    "   correctly, default: 1                                        \n" +
+    "  -i <num> - initial repeats for each question, default: 2      \n" +
+    "  -m <num> - max repeats for each question, default: 3          \n" +
+    "  -c - activate cheat mode                                      \n" +
+    "  -d - disable ansi codes (not recomended, use if your term     \n" +
+    "   doesn't support them for any reason. But consider upgrading  \n" +
+    "   your term, it not 1975 anymore bruh). Hope your term         \n" +
+    "   supprorts UTF-8 at least.                                    \n" +
+    " ______________________________________________________________ \n" +
+    "  テステル │ ver1.0.1 │ bk                                      \n" +
     "\n\n")
 }
 
@@ -292,11 +294,11 @@ clear_term :: proc(config: ^Config) {
     if config.ansimode {
         fmt.print("\x1b[2J\x1b[H")
     } else {
-        for i in 0..=63 {
-            fmt.print("\n")
+        if os.OS == .Windows {
+            libc.system("cls")
+        } else {
+            libc.system("clear")
         }
-        fmt.println("________________________________")
     }
-    // fmt.println(ansi.CSI + ansi.FG_CYAN + ansi.SGR + "Hellope!" + ansi.CSI + ansi.RESET + ansi.SGR)
 }
 
